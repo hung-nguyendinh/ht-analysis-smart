@@ -175,7 +175,7 @@ def render_result_downloads(result, filename_prefix: str, key_prefix: str):
     main_csv = tables[main_name].to_csv(index=False).encode("utf-8-sig")
     excel_bytes = tables_to_excel_bytes(tables)
 
-    st.markdown("#### Export")
+    st.markdown("#### :material/download: Export")
     col1, col2 = st.columns(2)
     with col1:
         st.download_button(
@@ -185,6 +185,7 @@ def render_result_downloads(result, filename_prefix: str, key_prefix: str):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key=f"{key_prefix}_excel",
             use_container_width=True,
+            icon=":material/table_view:",
         )
     with col2:
         st.download_button(
@@ -194,4 +195,5 @@ def render_result_downloads(result, filename_prefix: str, key_prefix: str):
             mime="text/csv",
             key=f"{key_prefix}_csv",
             use_container_width=True,
+            icon=":material/description:",
         )

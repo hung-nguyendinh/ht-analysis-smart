@@ -98,12 +98,19 @@ def get_custom_css() -> str:
 
     /* ── Section header ───────────────────────────────── */
     .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
         font-size: 1.4rem;
         font-weight: 700;
         color: #d1495b;
         margin: 1.5rem 0 0.8rem 0;
         padding-bottom: 0.4rem;
         border-bottom: 2px dashed #ffc0cb;
+    }
+    .section-header .material-symbols-rounded {
+        font-size: 1.45rem;
+        font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 28;
     }
 
     /* ── Upload area ──────────────────────────────────── */
@@ -139,26 +146,46 @@ def get_custom_css() -> str:
     }
     [data-testid="stSidebar"] > div:first-child {
         width: 19rem;
-        height: 100%;
-        max-height: 100%;
-        overflow: hidden;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        scroll-padding-bottom: 1.15rem;
+        scrollbar-color: rgba(190, 91, 129, 0.28) transparent;
+        scrollbar-width: thin;
+        scrollbar-gutter: stable;
+        touch-action: pan-y;
     }
     [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
         box-sizing: border-box;
-        height: 100%;
-        max-height: 100%;
+        height: auto !important;
+        min-height: calc(100% + 2.5rem) !important;
+        max-height: none !important;
         margin-top: -2.5rem;
-        padding: clamp(0.45rem, 1vh, 0.7rem) 0.9rem 0.75rem;
-        overflow: hidden;
-        overscroll-behavior: none;
+        padding: clamp(0.45rem, 1vh, 0.7rem) 0.9rem 1.15rem;
+        overflow: visible !important;
     }
     [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 auto;
         box-sizing: border-box;
-        height: 100%;
-        min-height: 0;
-        max-height: 100%;
+        height: auto;
+        min-height: 100%;
+        max-height: none;
         gap: clamp(0.18rem, 0.45vh, 0.34rem);
-        overflow: hidden;
+        overflow: visible;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] > div {
+        flex-shrink: 0;
+    }
+    [data-testid="stSidebar"] > div:first-child::-webkit-scrollbar {
+        width: 0.32rem;
+    }
+    [data-testid="stSidebar"] > div:first-child::-webkit-scrollbar-thumb {
+        background: rgba(190, 91, 129, 0.22);
+        border-radius: 999px;
     }
     [data-testid="stSidebar"] hr {
         display: none;
@@ -255,7 +282,15 @@ def get_custom_css() -> str:
         text-transform: uppercase;
     }
     .sidebar-section-label.data-label {
-        margin-top: clamp(0.65rem, 1.4vh, 1rem);
+        margin-top: 0;
+    }
+    [data-testid="stSidebar"] .st-key-sidebar_status {
+        flex: 0 0 auto;
+        margin-top: auto;
+        padding-top: clamp(0.65rem, 1.4vh, 1rem);
+    }
+    [data-testid="stSidebar"] .st-key-sidebar_status > div {
+        gap: clamp(0.18rem, 0.45vh, 0.34rem);
     }
 
     /* Sidebar navigation */
@@ -351,12 +386,12 @@ def get_custom_css() -> str:
         box-shadow: 0 0 0 3px rgba(98, 185, 150, 0.12);
     }
     .dataset-name {
-        overflow: hidden;
         color: #623249;
         font-size: 0.79rem;
         font-weight: 700;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+        white-space: normal;
     }
     .dataset-stats {
         display: grid;
@@ -432,27 +467,6 @@ def get_custom_css() -> str:
         font-weight: 700;
         box-shadow: none;
     }
-    [data-testid="stSidebar"] .stButton button p {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.48rem;
-    }
-    [data-testid="stSidebar"] .stButton button p::before {
-        content: "delete";
-        font-family: 'Material Symbols Rounded';
-        font-size: 1.05rem;
-        font-style: normal;
-        font-weight: normal;
-        font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
-        line-height: 1;
-        letter-spacing: normal;
-        text-transform: none;
-        white-space: nowrap;
-        direction: ltr;
-        -webkit-font-feature-settings: 'liga';
-        -webkit-font-smoothing: antialiased;
-    }
     [data-testid="stSidebar"] .stButton button:hover {
         color: #ffffff;
         background: #c94a7d;
@@ -460,6 +474,7 @@ def get_custom_css() -> str:
     }
     .sidebar-footer {
         display: flex;
+        flex: 0 0 auto;
         align-items: center;
         justify-content: space-between;
         margin: clamp(0.55rem, 1.2vh, 0.85rem) 0.15rem 0;
@@ -469,15 +484,14 @@ def get_custom_css() -> str:
         font-size: 0.62rem;
         font-weight: 700;
     }
-    [data-testid="stSidebar"] .element-container:has(.sidebar-footer) {
-        margin-top: auto;
-    }
-
     /* Preserve readability while fitting genuinely short viewports. */
     @media (max-height: 680px) {
         [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
             padding-top: 0.35rem;
-            padding-bottom: 0.4rem;
+            padding-bottom: 0.8rem;
+        }
+        [data-testid="stSidebar"] > div:first-child {
+            scroll-padding-bottom: 0.8rem;
         }
         .sidebar-brand {
             margin-bottom: 0.5rem;
@@ -501,7 +515,10 @@ def get_custom_css() -> str:
             font-size: 0.6rem;
         }
         .sidebar-section-label.data-label {
-            margin-top: 0.48rem;
+            margin-top: 0;
+        }
+        [data-testid="stSidebar"] .st-key-sidebar_status {
+            padding-top: 0.48rem;
         }
         [data-testid="stSidebar"] [role="radiogroup"] label {
             min-height: 2.15rem;
@@ -514,7 +531,12 @@ def get_custom_css() -> str:
             padding: 0.62rem 0.7rem;
         }
         .dataset-tags {
-            display: none;
+            gap: 0.25rem;
+            margin-top: 0.3rem;
+        }
+        .dataset-tags span {
+            padding: 0.18rem 0.42rem;
+            font-size: 0.54rem;
         }
         .dataset-stats {
             margin-top: 0.3rem;
@@ -578,6 +600,30 @@ def info_box(text: str) -> str:
     return f'<div class="info-box">{text}</div>'
 
 
-def section_header(text: str) -> str:
+def modernize_icons(text: str) -> str:
+    """Replace legacy emoji markers with Material Symbols markdown."""
+    replacements = {
+        "📊": ":material/monitoring:",
+        "📋": ":material/description:",
+        "⚠️": ":material/warning:",
+        "✅": ":material/check_circle:",
+        "💡": ":material/lightbulb:",
+        "🔗": ":material/scatter_plot:",
+        "⚖️": ":material/balance:",
+        "❌": ":material/cancel:",
+        "📈": ":material/trending_up:",
+        "🏥": ":material/diagnosis:",
+    }
+    for legacy_icon, material_icon in replacements.items():
+        text = text.replace(legacy_icon, material_icon)
+    return text
+
+
+def section_header(text: str, icon: str = "analytics") -> str:
     """Generate HTML for a section header."""
-    return f'<div class="section-header">{text}</div>'
+    return (
+        '<div class="section-header">'
+        f'<span class="material-symbols-rounded">{icon}</span>'
+        f"<span>{text}</span>"
+        "</div>"
+    )

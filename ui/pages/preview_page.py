@@ -5,16 +5,16 @@ Includes detailed validation reporting (Errors vs Warnings).
 import pandas as pd
 import streamlit as st
 
-from models.data_schema import AnalysisType, ColumnType, IssueSeverity
+from models.data_schema import AnalysisType, IssueSeverity
 from ui.styles import metric_card, quality_badge, section_header
 
 
 def render_preview_page():
     """Render the data preview page."""
-    st.markdown("## 📊 Data Preview")
+    st.markdown("## :material/dataset: Data Preview")
 
     if "survey_data" not in st.session_state:
-        st.info("📤 Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
+        st.info("Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
         return
 
     survey_data = st.session_state["survey_data"]
@@ -22,7 +22,10 @@ def render_preview_page():
 
     # ── Tabs ──────────────────────────────────────────────
     tab_data, tab_columns, tab_quality, tab_missing = st.tabs([
-        "📋 Dữ liệu", "🏷️ Thông tin cột", "🏥 Chất lượng & Lỗi", "❓ Missing Data"
+        ":material/table_view: Dữ liệu",
+        ":material/view_column: Thông tin cột",
+        ":material/fact_check: Chất lượng & Lỗi",
+        ":material/data_alert: Missing Data",
     ])
 
     with tab_data:
@@ -40,12 +43,12 @@ def render_preview_page():
 
 def _render_data_tab(df: pd.DataFrame):
     """Render the data table tab."""
-    st.markdown(section_header("Bảng dữ liệu"), unsafe_allow_html=True)
+    st.markdown(section_header("Bảng dữ liệu", "table_view"), unsafe_allow_html=True)
 
     # Controls
     col1, col2 = st.columns([3, 1])
     with col1:
-        search = st.text_input("🔍 Tìm kiếm", placeholder="Nhập từ khóa đề lọc...", key="data_search")
+        search = st.text_input("Tìm kiếm", placeholder="Nhập từ khóa đề lọc...", key="data_search")
     with col2:
         n_rows = st.selectbox("Số dòng hiển thị", [20, 50, 100, "Tất cả"], key="n_rows_select")
 
@@ -71,30 +74,19 @@ def _render_data_tab(df: pd.DataFrame):
 
 def _render_columns_tab(survey_data):
     """Render column information tab."""
-    st.markdown(section_header("Thông tin các cột"), unsafe_allow_html=True)
+    st.markdown(section_header("Thông tin các cột", "view_column"), unsafe_allow_html=True)
 
     # Build column info table
     rows = []
     for col_name, info in survey_data.columns_info.items():
-        type_emoji = {
-            ColumnType.LIKERT: "📊",
-            ColumnType.DEMOGRAPHIC: "👤",
-            ColumnType.CATEGORICAL: "🏷️",
-            ColumnType.NUMERIC: "🔢",
-            ColumnType.ID: "🔑",
-            ColumnType.OPEN_ENDED: "💬",
-            ColumnType.UNKNOWN: "❓",
-        }
-        emoji = type_emoji.get(info.detected_type, "")
-
         rows.append({
             "Cột": col_name,
-            "Loại": f"{emoji} {info.detected_type.value}",
+            "Loại": info.detected_type.value,
             "DType gốc": info.original_dtype,
             "Missing": f"{info.missing_count} ({info.missing_ratio*100:.1f}%)",
             "Unique": info.unique_count,
             "Scale": info.scale_name or "—",
-            "Converted": "✅" if info.is_converted else "—",
+            "Converted": "Có" if info.is_converted else "—",
         })
 
     col_df = pd.DataFrame(rows)
@@ -103,7 +95,7 @@ def _render_columns_tab(survey_data):
 
 def _render_quality_tab(survey_data):
     """Render quality report tab."""
-    st.markdown(section_header("Kiểm định chất lượng"), unsafe_allow_html=True)
+    st.markdown(section_header("Kiểm định chất lượng", "fact_check"), unsafe_allow_html=True)
 
     # 1. Score Overview
     quality_results = survey_data.get_analysis_by_type(AnalysisType.QUALITY_REPORT)
@@ -117,37 +109,37 @@ def _render_quality_tab(survey_data):
         with c1:
             st.markdown(f"#### Điểm tổng quát: \n {quality_badge(score, grade)}", unsafe_allow_html=True)
         with c2:
-            st.info(f"💡 **Đánh giá:** {grade}. {score}/100. " + 
+            st.info(f"**Đánh giá:** {grade}. {score}/100. " +
                     ("Dữ liệu rất tốt." if score > 80 else "Dữ liệu cần làm sạch thêm." if score > 50 else "Dữ liệu có nhiều lỗi."))
 
     # 2. Validation Details (The "Full" part the user asked for)
-    st.markdown("### 🏥 Chi tiết lỗi & Cảnh báo")
+    st.markdown("### :material/diagnosis: Chi tiết lỗi & Cảnh báo")
     
     val = survey_data.validation
     if not val.issues:
-        st.success("✅ **Không có lỗi**: Chúc mừng! Dữ liệu của bạn sạch và đạt chuẩn để phân tích.")
+        st.success("**Không có lỗi**: Dữ liệu sạch và đạt chuẩn để phân tích.")
     else:
         # Categorize
         errors = [i for i in val.issues if i.severity == IssueSeverity.ERROR]
         warnings = [i for i in val.issues if i.severity == IssueSeverity.WARNING]
 
         if errors:
-            st.error(f"❌ **Phát hiện {len(errors)} LỖI NGHIÊM TRỌNG (Cần xử lý ngay)**")
+            st.error(f"**Phát hiện {len(errors)} LỖI NGHIÊM TRỌNG (Cần xử lý ngay)**")
             for i, err in enumerate(errors):
-                with st.expander(f"Lỗi {i+1}: {err.message}", expanded=True):
+                with st.expander(f"Lỗi {i+1}: {err.message}", expanded=True, icon=":material/error:"):
                     st.write(f"**Vị trí:** {err.column if err.column else 'Toàn tập dữ liệu'}")
-                    st.markdown(f"**👉 Giải pháp:** {err.suggestion}")
+                    st.markdown(f"**Giải pháp:** {err.suggestion}")
         
         if warnings:
-            st.warning(f"⚠️ **Phát hiện {len(warnings)} CẢNH BÁO (Nên lưu ý)**")
+            st.warning(f"**Phát hiện {len(warnings)} CẢNH BÁO (Nên lưu ý)**")
             for i, warn in enumerate(warnings):
-                with st.expander(f"Cảnh báo {i+1}: {warn.message}", expanded=False):
+                with st.expander(f"Cảnh báo {i+1}: {warn.message}", expanded=False, icon=":material/warning:"):
                     st.write(f"**Vị trí:** {warn.column if warn.column else 'Toàn tập dữ liệu'}")
-                    st.markdown(f"**👉 Giải pháp:** {warn.suggestion}")
+                    st.markdown(f"**Giải pháp:** {warn.suggestion}")
 
     # 3. Column-level scores (from quality report)
     if quality_results:
-        st.markdown(section_header("Chỉ số chi tiết từng cột"), unsafe_allow_html=True)
+        st.markdown(section_header("Chỉ số chi tiết từng cột", "analytics"), unsafe_allow_html=True)
         qr_data = quality_results[0].data
         col_scores = qr_data.get("column_scores", [])
         if col_scores:
@@ -158,7 +150,7 @@ def _render_quality_tab(survey_data):
                     "Điểm": c["quality_score"],
                     "Valid": c["n_valid"],
                     "Missing %": f"{c['missing_pct']}%",
-                    "Phát hiện": "; ".join(c.get("issues", [])) or "Sạch ✅",
+                    "Phát hiện": "; ".join(c.get("issues", [])) or "Sạch",
                 })
             score_df = pd.DataFrame(score_rows)
             st.dataframe(score_df, use_container_width=True, hide_index=True)
@@ -167,7 +159,7 @@ def _render_quality_tab(survey_data):
 def _render_missing_tab(survey_data):
     """Render missing data analysis tab."""
     df = survey_data.df
-    st.markdown(section_header("Tổng quan Missing Data"), unsafe_allow_html=True)
+    st.markdown(section_header("Tổng quan Missing Data", "data_alert"), unsafe_allow_html=True)
 
     missing_counts = df.isna().sum()
     missing_pct = (missing_counts / len(df) * 100).round(2)
@@ -181,7 +173,7 @@ def _render_missing_tab(survey_data):
     has_missing = missing_df[missing_df["Số missing"] > 0]
 
     if has_missing.empty:
-        st.success("✅ Không có missing data! Dữ liệu hoàn chỉnh 100%.")
+        st.success("Không có missing data. Dữ liệu hoàn chỉnh 100%.")
         return
 
     total_missing = int(missing_counts.sum())

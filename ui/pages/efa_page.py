@@ -14,10 +14,10 @@ from ui.styles import metric_card, section_header
 
 def render_efa_page():
     """Render the EFA page."""
-    st.markdown("## 🔬 Phân Tích Nhân Tố Khám Phá — EFA")
+    st.markdown("## :material/hub: Phân Tích Nhân Tố Khám Phá — EFA")
 
     if "survey_data" not in st.session_state:
-        st.info("📤 Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
+        st.info("Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
         return
 
     survey_data = st.session_state["survey_data"]
@@ -27,13 +27,13 @@ def render_efa_page():
     numeric_cols = get_numeric_column_names(df)
 
     if len(numeric_cols) < 3:
-        st.warning("⚠️ Cần ít nhất 3 cột số để chạy EFA.")
+        st.warning("Cần ít nhất 3 cột số để chạy EFA.")
         return
 
     # ═══════════════════════════════════════════════════════════════
     # STEP 1 — Chọn biến
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("Bước 1 — Chọn biến"), unsafe_allow_html=True)
+    st.markdown(section_header("Bước 1 — Chọn biến", "tune"), unsafe_allow_html=True)
 
     default_cols = numeric_cols if len(numeric_cols) <= 20 else numeric_cols[:20]
     selected_cols = render_column_picker(
@@ -49,11 +49,11 @@ def render_efa_page():
     )
 
     if len(selected_cols) < 3:
-        st.info("⬆️ Chọn ít nhất **3 biến** để bắt đầu.")
+        st.info("Chọn ít nhất **3 biến** để bắt đầu.")
         return
 
     # STEP 2 — Options
-    st.markdown(section_header("Bước 2 — Tuỳ chọn"), unsafe_allow_html=True)
+    st.markdown(section_header("Bước 2 — Tuỳ chọn", "settings"), unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -77,7 +77,7 @@ def render_efa_page():
             help="Biến có loading < ngưỡng sẽ được cảnh báo.",
         )
 
-    with st.expander("❓ Giải thích về EFA", expanded=False):
+    with st.expander("Giải thích về EFA", expanded=False, icon=":material/help:"):
         st.markdown("""
 **EFA (Exploratory Factor Analysis) là gì?**
 - Phương pháp rút gọn nhiều biến quan sát thành ít **nhân tố** hơn.
@@ -95,7 +95,7 @@ def render_efa_page():
     _ensure_numeric(survey_data, selected_cols)
 
     st.markdown("---")
-    if st.button("🔍 Chạy EFA", type="primary", use_container_width=True, key="efa_run"):
+    if st.button("Chạy EFA", type="primary", use_container_width=True, key="efa_run", icon=":material/play_arrow:"):
         with st.spinner("Đang phân tích nhân tố..."):
             result = compute_efa(
                 survey_data,
@@ -114,7 +114,7 @@ def render_efa_page():
 
     if result.warnings:
         for w in result.warnings:
-            st.warning(f"⚠️ {w}")
+            st.warning(w)
 
     if not result.data:
         st.error(result.summary_text)
@@ -130,7 +130,7 @@ def _render_efa_results(survey_data, data: dict, result):
     # ═══════════════════════════════════════════════════════════════
     # A — KMO & BARTLETT
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("📋 Kiểm Định Điều Kiện EFA"), unsafe_allow_html=True)
+    st.markdown(section_header("Kiểm Định Điều Kiện EFA", "fact_check"), unsafe_allow_html=True)
 
     kmo = data.get("kmo", {})
     bartlett = data.get("bartlett", {})
@@ -144,13 +144,13 @@ def _render_efa_results(survey_data, data: dict, result):
     bartlett_ok = bartlett_sig
 
     if kmo_ok and bartlett_ok:
-        st.success("✅ Dữ liệu **ĐẠT** điều kiện chạy EFA.")
+        st.success("Dữ liệu **ĐẠT** điều kiện chạy EFA.")
     elif kmo_ok:
-        st.warning("⚠️ KMO đạt nhưng Bartlett's Test không có ý nghĩa.")
+        st.warning("KMO đạt nhưng Bartlett's Test không có ý nghĩa.")
     elif bartlett_ok:
-        st.warning("⚠️ Bartlett's Test đạt nhưng KMO quá thấp.")
+        st.warning("Bartlett's Test đạt nhưng KMO quá thấp.")
     else:
-        st.error("❌ Dữ liệu KHÔNG phù hợp cho EFA.")
+        st.error("Dữ liệu KHÔNG phù hợp cho EFA.")
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
@@ -164,7 +164,7 @@ def _render_efa_results(survey_data, data: dict, result):
         b_color = "green" if bartlett_ok else "red"
         st.markdown(metric_card(f"{bartlett_p:.6f}", "Bartlett Sig.", b_color), unsafe_allow_html=True)
 
-    with st.expander("ℹ️ Thang đánh giá KMO"):
+    with st.expander("Thang đánh giá KMO", icon=":material/menu_book:"):
         st.markdown("""
 | KMO | Đánh giá | Ý nghĩa |
 |:---|:---|:---|
@@ -181,7 +181,7 @@ def _render_efa_results(survey_data, data: dict, result):
     # ═══════════════════════════════════════════════════════════════
     communalities = data.get("communalities", [])
     if communalities:
-        with st.expander("📊 Communalities", expanded=False):
+        with st.expander("Communalities", expanded=False, icon=":material/table_view:"):
             comm_df = pd.DataFrame(communalities)
             comm_df.columns = ["Biến", "Initial", "Extraction"]
 
@@ -198,14 +198,14 @@ def _render_efa_results(survey_data, data: dict, result):
                 }),
                 use_container_width=True, hide_index=True,
             )
-            st.caption("🟡 Extraction < 0.5: biến giải thích ít cho nhân tố chung.")
+            st.caption("Extraction < 0.5: biến giải thích ít cho nhân tố chung.")
 
     # ═══════════════════════════════════════════════════════════════
     # C — TOTAL VARIANCE EXPLAINED
     # ═══════════════════════════════════════════════════════════════
     variance = data.get("variance_explained", [])
     if variance:
-        st.markdown(section_header("📈 Total Variance Explained"), unsafe_allow_html=True)
+        st.markdown(section_header("Total Variance Explained", "monitoring"), unsafe_allow_html=True)
 
         cum_extracted = data.get("cumulative_variance_extracted", 0)
         n_factors = data.get("n_factors", 0)
@@ -219,10 +219,10 @@ def _render_efa_results(survey_data, data: dict, result):
 
         var_df = pd.DataFrame(variance)
         var_df.columns = ["Component", "Eigenvalue", "% Variance", "Cumulative %", "Extracted?"]
-        var_df["Extracted?"] = var_df["Extracted?"].map({True: "✅", False: ""})
+        var_df["Extracted?"] = var_df["Extracted?"].map({True: "Có", False: "Không"})
 
         def highlight_extracted(row):
-            if row["Extracted?"] == "✅":
+            if row["Extracted?"] == "Có":
                 return ["background-color: #d4edda"] * len(row)
             return [""] * len(row)
 
@@ -238,7 +238,7 @@ def _render_efa_results(survey_data, data: dict, result):
         # Scree Plot
         scree = data.get("scree_data", [])
         if scree:
-            with st.expander("📉 Scree Plot", expanded=True):
+            with st.expander("Scree Plot", expanded=True, icon=":material/show_chart:"):
                 import plotly.graph_objects as go
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(
@@ -265,7 +265,7 @@ def _render_efa_results(survey_data, data: dict, result):
     # ═══════════════════════════════════════════════════════════════
     rotated = data.get("rotated_matrix", [])
     if rotated:
-        st.markdown(section_header("🔄 Rotated Component Matrix"), unsafe_allow_html=True)
+        st.markdown(section_header("Rotated Component Matrix", "rotate_right"), unsafe_allow_html=True)
 
         rotation_method = data.get("rotation_method", "varimax").capitalize()
         threshold = data.get("loading_threshold", 0.5)
@@ -296,24 +296,24 @@ def _render_efa_results(survey_data, data: dict, result):
         ).format({col: "{:.4f}" for col in factor_cols})
 
         st.dataframe(styled, use_container_width=True, hide_index=True)
-        st.caption(f"🟢 Loading ≥ {threshold} | 🟡 Loading gần ngưỡng")
+        st.caption(f"Loading ≥ {threshold} | Loading gần ngưỡng")
 
     # Cross-loading warning
     cross = data.get("cross_loadings", [])
     if cross:
-        with st.expander("⚠️ Cross-Loading (biến tải lên nhiều nhân tố)", expanded=True):
+        with st.expander("Cross-Loading (biến tải lên nhiều nhân tố)", expanded=True, icon=":material/warning:"):
             cross_df = pd.DataFrame(cross)
             cross_df["factors"] = cross_df["factors"].apply(lambda x: ", ".join([f"F{f}" for f in x]))
             cross_df["loadings"] = cross_df["loadings"].apply(lambda x: ", ".join([f"{v:.3f}" for v in x]))
             cross_df.columns = ["Biến", "Nhân tố", "Loading"]
             st.dataframe(cross_df, use_container_width=True, hide_index=True)
-            st.info("💡 **Gợi ý:** Biến có cross-loading nên được xem xét loại bỏ hoặc gán vào nhân tố có loading cao nhất.")
+            st.info("**Gợi ý:** Biến có cross-loading nên được xem xét loại bỏ hoặc gán vào nhân tố có loading cao nhất.")
 
     # ═══════════════════════════════════════════════════════════════
     # E — FACTOR GROUPING SUMMARY
     # ═══════════════════════════════════════════════════════════════
     if rotated:
-        st.markdown(section_header("💡 Tóm Tắt Nhóm Nhân Tố"), unsafe_allow_html=True)
+        st.markdown(section_header("Tóm Tắt Nhóm Nhân Tố", "account_tree"), unsafe_allow_html=True)
 
         n_factors = data.get("n_factors", 0)
         for f in range(1, n_factors + 1):
@@ -364,7 +364,7 @@ def _render_factor_score_creator(survey_data, efa_data: dict):
                 "items": ", ".join(items),
             })
 
-    with st.expander("Create factor score columns", expanded=False):
+    with st.expander("Create factor score columns", expanded=False, icon=":material/functions:"):
         if not groups:
             st.info("No factor has at least 2 accepted items, so no factor score can be created automatically.")
             return
@@ -378,7 +378,7 @@ def _render_factor_score_creator(survey_data, efa_data: dict):
         )
         min_valid_items = 1 if allow_partial else None
 
-        if st.button("Create factor score columns", key="efa_create_factor_scores"):
+        if st.button("Create factor score columns", key="efa_create_factor_scores", icon=":material/add_chart:"):
             try:
                 created = create_factor_scores_from_efa(
                     survey_data,

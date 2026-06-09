@@ -14,7 +14,7 @@ from services.data_loader import get_excel_sheets
 
 def render_upload_page():
     """Render the file upload page."""
-    st.markdown("## 📤 Upload Dữ Liệu Khảo Sát")
+    st.markdown("## :material/upload_file: Upload Dữ Liệu Khảo Sát")
     st.markdown(
         "Upload file khảo sát (.csv, .xlsx, .xls). "
         "Hệ thống sẽ tự động load, validate, preprocess và tạo báo cáo."
@@ -50,7 +50,7 @@ def render_upload_page():
             and st.session_state.get("uploaded_filename") == uploaded_file.name
             and st.session_state.get("uploaded_size") == uploaded_file.size
         ):
-            st.success("✅ File đã được xử lý. Chuyển sang **📊 Preview** để xem dữ liệu.")
+            st.success("File đã được xử lý. Chuyển sang **Preview** để xem dữ liệu.")
             _show_quick_summary(st.session_state["survey_data"])
             return
 
@@ -66,13 +66,13 @@ def render_upload_page():
             os.unlink(tmp_path)
             
             if len(sheets) > 1:
-                st.info(f"📂 File này có {len(sheets)} sheets. Vui lòng chọn sheet cần phân tích:")
+                st.info(f"File này có {len(sheets)} sheets. Vui lòng chọn sheet cần phân tích:")
                 sheet_name = st.selectbox("Chọn Sheet", sheets, index=0)
             elif len(sheets) == 1:
                 sheet_name = sheets[0]
 
         # Process the file
-        if st.button("🚀 Bắt đầu xử lý", type="primary", use_container_width=True):
+        if st.button("Bắt đầu xử lý", type="primary", use_container_width=True, icon=":material/play_arrow:"):
             _process_file(uploaded_file, sheet_name=sheet_name)
 
 
@@ -83,12 +83,12 @@ def _process_file(uploaded_file, sheet_name=None):
 
     try:
         # Step 1: Load
-        status.info("📂 Đang đọc file...")
+        status.info("Đang đọc file...")
         progress_bar.progress(10, text="Đang đọc file...")
         time.sleep(0.3)
 
         # Step 2-4: Full pipeline (load → validate → preprocess → quality)
-        status.info("⚙️ Đang xử lý dữ liệu (validate → preprocess → quality report)...")
+        status.info("Đang xử lý dữ liệu (validate → preprocess → quality report)...")
         progress_bar.progress(30, text="Đang validate và preprocess...")
 
         survey_data = process_uploaded_file(uploaded_file, sheet_name=sheet_name)
@@ -101,24 +101,24 @@ def _process_file(uploaded_file, sheet_name=None):
         st.session_state["uploaded_filename"] = uploaded_file.name
         st.session_state["uploaded_size"] = uploaded_file.size
 
-        progress_bar.progress(100, text="✅ Hoàn tất!")
+        progress_bar.progress(100, text="Hoàn tất!")
         status.empty()
 
-        st.success("✅ Xử lý thành công! Chuyển sang **📊 Preview** để xem dữ liệu.")
+        st.success("Xử lý thành công! Chuyển sang **Preview** để xem dữ liệu.")
 
         _show_quick_summary(survey_data)
 
     except Exception as e:
         progress_bar.empty()
         status.empty()
-        st.error(f"❌ Lỗi khi xử lý file: {str(e)}")
+        st.error(f"Lỗi khi xử lý file: {str(e)}")
         st.exception(e)
 
 
 def _show_quick_summary(survey_data):
     """Show a quick summary after processing."""
     st.markdown("---")
-    st.markdown("### 📋 Tổng quan nhanh")
+    st.markdown("### :material/dashboard: Tổng quan nhanh")
 
     rows, cols = survey_data.df.shape
 
@@ -151,13 +151,13 @@ def _show_quick_summary(survey_data):
         st.markdown(f"**Chất lượng dữ liệu:** {score}/100 ({grade})")
 
         if qr.warnings:
-            with st.expander(f"⚠️ {len(qr.warnings)} cảnh báo", expanded=False):
+            with st.expander(f"{len(qr.warnings)} cảnh báo", expanded=False, icon=":material/warning:"):
                 for w in qr.warnings:
                     st.warning(w)
 
     # Processing log
     if survey_data.processing_log:
-        with st.expander("📝 Processing Log", expanded=False):
+        with st.expander("Processing Log", expanded=False, icon=":material/receipt_long:"):
             for log_entry in survey_data.processing_log:
                 st.text(f"  • {log_entry}")
 

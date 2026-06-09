@@ -57,13 +57,13 @@ def get_categorical_column_names(df: pd.DataFrame, max_unique: int = 15) -> list
 
 
 _COLUMN_TYPE_LABELS = {
-    ColumnType.LIKERT.value: "📊 Likert",
-    ColumnType.NUMERIC.value: "🔢 Số",
-    ColumnType.DEMOGRAPHIC.value: "👤 Nhân khẩu học",
-    ColumnType.CATEGORICAL.value: "🏷️ Định danh",
-    ColumnType.OPEN_ENDED.value: "💬 Câu trả lời mở",
-    ColumnType.ID.value: "🔑 ID",
-    ColumnType.UNKNOWN.value: "❓ Chưa rõ",
+    ColumnType.LIKERT.value: "Likert",
+    ColumnType.NUMERIC.value: "Số",
+    ColumnType.DEMOGRAPHIC.value: "Nhân khẩu học",
+    ColumnType.CATEGORICAL.value: "Định danh",
+    ColumnType.OPEN_ENDED.value: "Câu trả lời mở",
+    ColumnType.ID.value: "ID",
+    ColumnType.UNKNOWN.value: "Chưa rõ",
 }
 
 
@@ -152,6 +152,7 @@ def render_column_picker(
                 key=f"{key}_select_recommended",
                 use_container_width=True,
                 disabled=not recommended_columns,
+                icon=":material/recommend:",
             ):
                 _set_selected_columns(key, recommended_columns)
         with btn_cols[1]:
@@ -160,6 +161,7 @@ def render_column_picker(
                 key=f"{key}_select_visible",
                 use_container_width=True,
                 disabled=not visible_columns,
+                icon=":material/select_all:",
             ):
                 merged = _ordered_unique(current_selected + visible_columns, all_columns)
                 _set_selected_columns(key, merged)
@@ -169,6 +171,7 @@ def render_column_picker(
                 key=f"{key}_unselect_visible",
                 use_container_width=True,
                 disabled=not visible_columns,
+                icon=":material/deselect:",
             ):
                 visible_set = set(visible_columns)
                 kept = [col for col in current_selected if col not in visible_set]
@@ -179,6 +182,7 @@ def render_column_picker(
                 key=f"{key}_clear",
                 use_container_width=True,
                 disabled=not current_selected,
+                icon=":material/clear_all:",
             ):
                 _set_selected_columns(key, [])
 
@@ -316,7 +320,7 @@ def _build_column_picker_row(
     unique_count = _info_value(info, "unique_count", int(series.nunique(dropna=True)))
     valid_count = int(series.notna().sum())
     type_value = _column_type_value(info)
-    type_label = _COLUMN_TYPE_LABELS.get(type_value, "🔢 Số" if numeric else "❓ Chưa rõ")
+    type_label = _COLUMN_TYPE_LABELS.get(type_value, "Số" if numeric else "Chưa rõ")
 
     return {
         "Chọn": selected,

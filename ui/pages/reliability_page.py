@@ -9,7 +9,7 @@ from services.reliability import compute_cronbach_alpha
 from services.scale_scores import create_scale_score
 from ui.analysis_helpers import get_numeric_column_names, render_column_picker
 from ui.export_helpers import render_result_downloads
-from ui.styles import metric_card, section_header
+from ui.styles import metric_card, modernize_icons, section_header
 
 
 _ALPHA_COLOR = {
@@ -24,10 +24,10 @@ _ALPHA_COLOR = {
 
 def render_reliability_page():
     """Render the Reliability Analysis page."""
-    st.markdown("## 🔬 Phân Tích Độ Tin Cậy — Cronbach's Alpha")
+    st.markdown("## :material/verified: Phân Tích Độ Tin Cậy — Cronbach's Alpha")
 
     if "survey_data" not in st.session_state:
-        st.info("📤 Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
+        st.info("Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
         return
 
     survey_data = st.session_state["survey_data"]
@@ -37,13 +37,13 @@ def render_reliability_page():
     numeric_cols = get_numeric_column_names(df)
 
     if len(all_cols) < 2:
-        st.warning("⚠️ Cần ít nhất 2 cột để tính Cronbach's Alpha.")
+        st.warning("Cần ít nhất 2 cột để tính Cronbach's Alpha.")
         return
 
     # ═══════════════════════════════════════════════════════════════
     # STEP 1 — Chọn items
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("Bước 1 — Chọn các Items phân tích"), unsafe_allow_html=True)
+    st.markdown(section_header("Bước 1 — Chọn các Items phân tích", "tune"), unsafe_allow_html=True)
 
     default_cols = numeric_cols if len(numeric_cols) >= 2 else all_cols[:min(5, len(all_cols))]
 
@@ -60,7 +60,7 @@ def render_reliability_page():
     )
 
     if len(selected_cols) < 2:
-        st.info("⬆️ Chọn ít nhất **2 cột** để bắt đầu phân tích.")
+        st.info("Chọn ít nhất **2 cột** để bắt đầu phân tích.")
         return
 
     # Filter/convert to numeric
@@ -77,14 +77,14 @@ def render_reliability_page():
                 skipped.append(c)
 
     if skipped:
-        st.warning(f"⚠️ Bỏ qua cột không chuyển được sang số: {', '.join(skipped)}")
+        st.warning(f"Bỏ qua cột không chuyển được sang số: {', '.join(skipped)}")
 
     if len(valid_cols) < 2:
-        st.error("❌ Cần ít nhất 2 cột số. Vui lòng chọn thêm.")
+        st.error("Cần ít nhất 2 cột số. Vui lòng chọn thêm.")
         return
 
     # --- Explanations Expander ---
-    with st.expander("❓ Giải thích về Cronbach's Alpha", expanded=False):
+    with st.expander("Giải thích về Cronbach's Alpha", expanded=False, icon=":material/help:"):
         st.markdown("""
 **Cronbach's Alpha là gì?**
 - Là hệ số dùng để kiểm tra xem các câu hỏi (items) có cùng đo lường một khái niệm hay không.
@@ -98,7 +98,7 @@ def render_reliability_page():
 
     _ensure_numeric(survey_data, valid_cols)
 
-    if st.button("🔍 Chạy phân tích", type="primary", use_container_width=True, key="rel_run"):
+    if st.button("Chạy phân tích", type="primary", use_container_width=True, key="rel_run", icon=":material/play_arrow:"):
         with st.spinner("Đang tính toán..."):
             result = compute_cronbach_alpha(survey_data, columns=valid_cols)
         st.session_state["rel_result"] = result
@@ -120,7 +120,7 @@ def render_reliability_page():
     # ═══════════════════════════════════════════════════════════════
     # RESULTS — Key Metrics
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("📋 Kết Quả Độ Tin Cậy"), unsafe_allow_html=True)
+    st.markdown(section_header("Kết Quả Độ Tin Cậy", "fact_check"), unsafe_allow_html=True)
 
     alpha = result.data.get("alpha", 0)
     interp = result.data.get("interpretation", "N/A")
@@ -130,11 +130,11 @@ def render_reliability_page():
 
     # Verdict Box
     if alpha >= 0.7:
-        st.success(f"✅ Thang đo đạt độ tin cậy tốt (**Alpha = {alpha:.4f}**, Đánh giá: **{interp}**).")
+        st.success(f"Thang đo đạt độ tin cậy tốt (**Alpha = {alpha:.4f}**, Đánh giá: **{interp}**).")
     elif alpha >= 0.6:
-        st.warning(f"⚠️ Thang đo có độ tin cậy tạm chấp nhận được (**Alpha = {alpha:.4f}**, Đánh giá: **{interp}**).")
+        st.warning(f"Thang đo có độ tin cậy tạm chấp nhận được (**Alpha = {alpha:.4f}**, Đánh giá: **{interp}**).")
     else:
-        st.error(f"❌ Thang đo KHÔNG đạt độ tin cậy (**Alpha = {alpha:.4f}**, Đánh giá: **{interp}**). Cần xem xét loại bỏ item.")
+        st.error(f"Thang đo KHÔNG đạt độ tin cậy (**Alpha = {alpha:.4f}**, Đánh giá: **{interp}**). Cần xem xét loại bỏ item.")
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
@@ -146,7 +146,7 @@ def render_reliability_page():
     with c4:
         st.markdown(metric_card(f"{n_valid:,}", "Mẫu hợp lệ (N)", "teal"), unsafe_allow_html=True)
 
-    with st.expander("ℹ️ Thang đánh giá chuẩn (Nunnally & Bernstein, 1994)"):
+    with st.expander("Thang đánh giá chuẩn (Nunnally & Bernstein, 1994)", icon=":material/menu_book:"):
         st.markdown("""
 | Hệ số Alpha | Đánh giá | Ý nghĩa |
 | :--- | :--- | :--- |
@@ -163,9 +163,9 @@ def render_reliability_page():
     # ═══════════════════════════════════════════════════════════════
     item_stats = result.data.get("item_statistics", [])
     if item_stats:
-        st.markdown(section_header("📊 Phân Tích Từng Biến (Item Statistics)"), unsafe_allow_html=True)
+        st.markdown(section_header("Phân Tích Từng Biến (Item Statistics)", "table_view"), unsafe_allow_html=True)
         
-        st.info("💡 **Gợi ý:** Để thang đo tốt nhất, các câu hỏi nên có 'Corrected Item-Total correlation' > 0.3.")
+        st.info("**Gợi ý:** Để thang đo tốt nhất, các câu hỏi nên có 'Corrected Item-Total correlation' > 0.3.")
 
         item_df = pd.DataFrame(item_stats)
         item_df.columns = [
@@ -197,20 +197,20 @@ def render_reliability_page():
             hide_index=True,
         )
         
-        st.caption("🔴 Ô màu đỏ: Tương quan thấp (< 0.3). 🟢 Ô màu xanh: Alpha tăng lên nếu xóa câu này.")
+        st.caption("Ô màu đỏ: Tương quan thấp (< 0.3). Ô màu xanh: Alpha tăng lên nếu xóa câu này.")
 
         # Summary findings
         low_items = item_df[item_df["Tương quan biến-tổng"] < 0.3]["Biến (Item)"].tolist()
         improving_items = item_df[item_df["Alpha nếu loại bỏ"] > alpha]["Biến (Item)"].tolist()
 
         if low_items or improving_items:
-            with st.expander("💡 Kết luận & Gợi ý xử lý", expanded=True):
+            with st.expander("Kết luận & Gợi ý xử lý", expanded=True, icon=":material/lightbulb:"):
                 if low_items:
                     st.warning(f"**Item có tương quan thấp:** {', '.join(low_items)}. Những câu này có thể không ăn nhập với các câu còn lại. Nên xem xét loại bỏ.")
                 if improving_items:
                     st.success(f"**Cơ hội cải thiện:** Loại bỏ các câu: {', '.join(improving_items)} sẽ giúp nâng chỉ số Alpha tổng lên cao hơn hiện tại.")
                 if not low_items and not improving_items and alpha >= 0.7:
-                    st.markdown("✨ **Thang đo của bạn rất tốt.** Không cần loại bỏ item nào.")
+                    st.markdown("**Thang đo của bạn rất tốt.** Không cần loại bỏ item nào.")
 
         st.info(
             "Workflow tip: after Cronbach's Alpha, create a mean score column "
@@ -224,12 +224,12 @@ def render_reliability_page():
         render_result_downloads(result, "reliability_report", "rel_export")
 
         st.markdown("---")
-        if st.button("🤖 Phân tích chuyên sâu bằng AI", key="ai_rel_btn"):
+        if st.button("Phân tích chuyên sâu bằng AI", key="ai_rel_btn", icon=":material/auto_awesome:"):
             with st.spinner("AI đang giải thích và chẩn đoán nguyên nhân..."):
                 from services.analysis_manager import AnalysisManager
                 am = AnalysisManager(st.session_state["survey_data"])
                 ai_explanation = am.explain_single_with_ai(result)
-                st.info(f"**AI Insight:**\n\n{ai_explanation}")
+                st.info(f"**AI Insight:**\n\n{modernize_icons(ai_explanation)}")
 
 
 def _ensure_numeric(survey_data, columns):
@@ -246,7 +246,7 @@ def _render_scale_score_creator(survey_data, item_cols, key_prefix: str):
         return
 
     default_name = f"Score_{item_cols[0].split('_')[0]}"
-    with st.expander("Create composite scale score", expanded=False):
+    with st.expander("Create composite scale score", expanded=False, icon=":material/functions:"):
         st.caption(
             "Use this after accepting the Cronbach/EFA items. "
             "The new numeric column appears in Correlation and Regression."
@@ -268,7 +268,7 @@ def _render_scale_score_creator(survey_data, item_cols, key_prefix: str):
             value=False,
             key=f"{key_prefix}_overwrite",
         )
-        if st.button("Create mean score column", key=f"{key_prefix}_create"):
+        if st.button("Create mean score column", key=f"{key_prefix}_create", icon=":material/add_chart:"):
             try:
                 summary = create_scale_score(
                     survey_data,

@@ -8,15 +8,15 @@ import streamlit as st
 from services.regression import compute_linear_regression
 from ui.analysis_helpers import get_numeric_column_names, render_column_picker
 from ui.export_helpers import render_result_downloads
-from ui.styles import metric_card, section_header
+from ui.styles import metric_card, modernize_icons, section_header
 
 
 def render_regression_page():
     """Render the Linear Regression page."""
-    st.markdown("## 📉 Hồi Quy Tuyến Tính — Linear Regression")
+    st.markdown("## :material/trending_up: Hồi Quy Tuyến Tính — Linear Regression")
 
     if "survey_data" not in st.session_state:
-        st.info("📤 Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
+        st.info("Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
         return
 
     survey_data = st.session_state["survey_data"]
@@ -26,16 +26,16 @@ def render_regression_page():
     numeric_cols = get_numeric_column_names(df)
 
     if len(numeric_cols) < 2:
-        st.warning("⚠️ Cần ít nhất 2 cột số để chạy hồi quy.")
+        st.warning("Cần ít nhất 2 cột số để chạy hồi quy.")
         return
 
     # ═══════════════════════════════════════════════════════════════
     # STEP 1 — Chọn biến
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("Bước 1 — Chọn biến"), unsafe_allow_html=True)
+    st.markdown(section_header("Bước 1 — Chọn biến", "tune"), unsafe_allow_html=True)
 
     dep_col = st.selectbox(
-        "📌 Biến phụ thuộc (Y — Dependent Variable):",
+        "Biến phụ thuộc (Y — Dependent Variable):",
         options=numeric_cols,
         key="reg_dep",
         help="Biến bạn muốn DỰ ĐOÁN. Ví dụ: Sự hài lòng, Ý định mua...",
@@ -45,7 +45,7 @@ def render_regression_page():
     indep_cols = render_column_picker(
         df,
         key="reg_indep",
-        label="📊 Chọn biến độc lập (X — Independent Variables)",
+        label="Chọn biến độc lập (X — Independent Variables)",
         all_columns=indep_options,
         default_columns=indep_options[:min(5, len(indep_options))],
         recommended_columns=indep_options,
@@ -55,7 +55,7 @@ def render_regression_page():
     )
 
     if len(indep_cols) < 1:
-        st.info("⬆️ Chọn ít nhất **1 biến độc lập** để bắt đầu.")
+        st.info("Chọn ít nhất **1 biến độc lập** để bắt đầu.")
         return
 
     st.info(
@@ -63,7 +63,7 @@ def render_regression_page():
         "after Cronbach/EFA. Avoid putting many raw items into the same thesis model."
     )
 
-    with st.expander("❓ Giải thích về Hồi quy tuyến tính", expanded=False):
+    with st.expander("Giải thích về Hồi quy tuyến tính", expanded=False, icon=":material/help:"):
         st.markdown("""
 **Hồi quy tuyến tính là gì?**
 - Kiểm tra mối quan hệ nhân quả: biến X nào ảnh hưởng đến Y, mức độ bao nhiêu.
@@ -80,7 +80,7 @@ def render_regression_page():
     _ensure_numeric(survey_data, [dep_col] + indep_cols)
 
     st.markdown("---")
-    if st.button("🔍 Chạy hồi quy", type="primary", use_container_width=True, key="reg_run"):
+    if st.button("Chạy hồi quy", type="primary", use_container_width=True, key="reg_run", icon=":material/play_arrow:"):
         with st.spinner("Đang phân tích..."):
             result = compute_linear_regression(survey_data, dep_col, indep_cols)
         st.session_state["reg_result"] = result
@@ -93,7 +93,7 @@ def render_regression_page():
 
     if result.warnings:
         for w in result.warnings:
-            st.warning(f"⚠️ {w}")
+            st.warning(w)
 
     if not result.data:
         st.error(result.summary_text)
@@ -118,12 +118,12 @@ def _render_regression_results(data: dict, result):
     # ═══════════════════════════════════════════════════════════════
     # A — MODEL SUMMARY
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("📋 Model Summary"), unsafe_allow_html=True)
+    st.markdown(section_header("Model Summary", "assessment"), unsafe_allow_html=True)
 
     if is_sig:
-        st.success(f"✅ Mô hình có ý nghĩa thống kê (F = {f_stat:.4f}, p = {f_p:.4f} < 0.05).")
+        st.success(f"Mô hình có ý nghĩa thống kê (F = {f_stat:.4f}, p = {f_p:.4f} < 0.05).")
     else:
-        st.warning(f"⚠️ Mô hình KHÔNG có ý nghĩa thống kê (F = {f_stat:.4f}, p = {f_p:.4f} ≥ 0.05).")
+        st.warning(f"Mô hình KHÔNG có ý nghĩa thống kê (F = {f_stat:.4f}, p = {f_p:.4f} ≥ 0.05).")
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
@@ -136,7 +136,7 @@ def _render_regression_results(data: dict, result):
     with c4:
         st.markdown(metric_card(f"{std_err:.4f}", "Std. Error", "blue"), unsafe_allow_html=True)
 
-    with st.expander("❓ Giải thích Model Summary"):
+    with st.expander("Giải thích Model Summary", icon=":material/help:"):
         st.markdown(f"""
 **R = {r:.4f}**: Hệ số tương quan bội. Đo mức tương quan giữa giá trị dự đoán và thực tế.
 
@@ -150,14 +150,14 @@ def _render_regression_results(data: dict, result):
 **Std. Error = {std_err:.4f}**: Sai số chuẩn ước lượng. Càng nhỏ càng tốt.
 
 **Durbin-Watson = {dw:.4f}**: Kiểm tra tự tương quan phần dư.
-- 1.5–2.5: Không có tự tương quan ✅
-- < 1.5 hoặc > 2.5: Có thể có tự tương quan ⚠️
+- 1.5–2.5: Không có tự tương quan
+- < 1.5 hoặc > 2.5: Có thể có tự tương quan
         """)
 
     # ═══════════════════════════════════════════════════════════════
     # B — ANOVA TABLE
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("📐 ANOVA"), unsafe_allow_html=True)
+    st.markdown(section_header("ANOVA", "experiment"), unsafe_allow_html=True)
 
     anova_data = [
         {
@@ -191,7 +191,7 @@ def _render_regression_results(data: dict, result):
     # ═══════════════════════════════════════════════════════════════
     # C — COEFFICIENTS TABLE
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("📊 Coefficients"), unsafe_allow_html=True)
+    st.markdown(section_header("Coefficients", "table_view"), unsafe_allow_html=True)
 
     coefficients = data.get("coefficients", [])
     if coefficients:
@@ -242,9 +242,9 @@ def _render_regression_results(data: dict, result):
             use_container_width=True,
             hide_index=True,
         )
-        st.caption("🟢 Sig. < 0.05: có ý nghĩa thống kê | 🔴 VIF ≥ 10: đa cộng tuyến nghiêm trọng | 🟡 VIF ≥ 5: cần lưu ý")
+        st.caption("Sig. < 0.05: có ý nghĩa thống kê | VIF ≥ 10: đa cộng tuyến nghiêm trọng | VIF ≥ 5: cần lưu ý")
 
-        with st.expander("❓ Giải thích bảng Coefficients"):
+        with st.expander("Giải thích bảng Coefficients", icon=":material/help:"):
             st.markdown("""
 **B (Unstandardized)**: Hệ số hồi quy thô. Khi X tăng 1 đơn vị, Y thay đổi B đơn vị.
 
@@ -252,8 +252,8 @@ def _render_regression_results(data: dict, result):
 |Beta| lớn nhất = biến ảnh hưởng mạnh nhất.
 
 **t-value & Sig.**: Kiểm định giả thuyết H₀: β = 0 (không ảnh hưởng).
-- **Sig. < 0.05**: Biến có ảnh hưởng có ý nghĩa ✅
-- **Sig. ≥ 0.05**: Chưa đủ bằng chứng ❌
+- **Sig. < 0.05**: Biến có ảnh hưởng có ý nghĩa
+- **Sig. ≥ 0.05**: Chưa đủ bằng chứng
 
 **VIF (Variance Inflation Factor)**: Đo đa cộng tuyến.
 - VIF < 2: Rất tốt
@@ -277,7 +277,7 @@ def _render_regression_results(data: dict, result):
                 key=lambda x: abs(x.get("beta_standardized", 0) or 0),
                 reverse=True,
             )
-            st.markdown(section_header("💡 Kết Luận"), unsafe_allow_html=True)
+            st.markdown(section_header("Kết Luận", "lightbulb"), unsafe_allow_html=True)
             st.markdown("**Các biến có ảnh hưởng có ý nghĩa (Sig. < 0.05):**")
             for p in sig_predictors:
                 direction = "thuận" if (p.get("B", 0) or 0) > 0 else "nghịch"
@@ -290,12 +290,12 @@ def _render_regression_results(data: dict, result):
         st.markdown("---")
         render_result_downloads(result, "regression_report", "reg_export")
 
-        if st.button("🤖 Phân tích chuyên sâu bằng AI", key="ai_reg_btn"):
+        if st.button("Phân tích chuyên sâu bằng AI", key="ai_reg_btn", icon=":material/auto_awesome:"):
             with st.spinner("AI đang giải thích và chẩn đoán nguyên nhân..."):
                 from services.analysis_manager import AnalysisManager
                 am = AnalysisManager(st.session_state["survey_data"])
                 ai_explanation = am.explain_single_with_ai(result)
-                st.info(f"**AI Insight:**\n\n{ai_explanation}")
+                st.info(f"**AI Insight:**\n\n{modernize_icons(ai_explanation)}")
 
 
 def _ensure_numeric(survey_data, columns):

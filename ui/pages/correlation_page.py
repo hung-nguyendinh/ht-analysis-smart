@@ -8,15 +8,15 @@ import streamlit as st
 from services.correlation import compute_correlation_matrix
 from ui.analysis_helpers import get_numeric_column_names, render_column_picker
 from ui.export_helpers import render_result_downloads
-from ui.styles import metric_card, section_header
+from ui.styles import metric_card, modernize_icons, section_header
 
 
 def render_correlation_page():
     """Render the Correlation Analysis page."""
-    st.markdown("## 🔗 Phân Tích Tương Quan")
+    st.markdown("## :material/scatter_plot: Phân Tích Tương Quan")
 
     if "survey_data" not in st.session_state:
-        st.info("📤 Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
+        st.info("Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
         return
 
     survey_data = st.session_state["survey_data"]
@@ -26,13 +26,13 @@ def render_correlation_page():
     numeric_cols = get_numeric_column_names(df)
 
     if len(all_cols) < 2:
-        st.warning("⚠️ Cần ít nhất 2 cột để tính tương quan.")
+        st.warning("Cần ít nhất 2 cột để tính tương quan.")
         return
 
     # ═══════════════════════════════════════════════════════════════
     # STEP 1 — Cài đặt
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(section_header("Bước 1 — Chọn biến & Phương pháp"), unsafe_allow_html=True)
+    st.markdown(section_header("Bước 1 — Chọn biến & Phương pháp", "tune"), unsafe_allow_html=True)
 
     default_cols = numeric_cols[:min(8, len(numeric_cols))] if numeric_cols else all_cols[:min(5, len(all_cols))]
 
@@ -55,7 +55,7 @@ def render_correlation_page():
     )
 
     if len(selected_cols) < 2:
-        st.info("⬆️ Chọn ít nhất **2 cột**.")
+        st.info("Chọn ít nhất **2 cột**.")
         return
 
     st.info(
@@ -64,7 +64,7 @@ def render_correlation_page():
     )
 
     # --- Explanations Expander ---
-    with st.expander("❓ Giải thích về Phân tích tương quan", expanded=False):
+    with st.expander("Giải thích về Phân tích tương quan", expanded=False, icon=":material/help:"):
         st.markdown(f"""
 **Tương quan là gì?**
 - Đo lường mức độ 'đi cùng nhau' giữa 2 biến.
@@ -96,15 +96,15 @@ def render_correlation_page():
                 skipped.append(c)
 
     if skipped:
-        st.warning(f"⚠️ Bỏ qua cột không chuyển được sang số: {', '.join(skipped)}")
+        st.warning(f"Bỏ qua cột không chuyển được sang số: {', '.join(skipped)}")
 
     if len(valid_cols) < 2:
-        st.error("❌ Cần ít nhất 2 cột số. Vui lòng chọn thêm.")
+        st.error("Cần ít nhất 2 cột số. Vui lòng chọn thêm.")
         return
 
     _ensure_numeric(survey_data, valid_cols)
 
-    if st.button("🔍 Tính tương quan", type="primary", use_container_width=True, key="corr_run"):
+    if st.button("Tính tương quan", type="primary", use_container_width=True, key="corr_run", icon=":material/play_arrow:"):
         with st.spinner("Đang tính ma trận tương quan..."):
             result = compute_correlation_matrix(survey_data, columns=valid_cols, method=method)
         st.session_state["corr_result"] = result
@@ -129,7 +129,7 @@ def render_correlation_page():
     data = result.data
     sig_pairs = data.get("significant_pairs", [])
 
-    st.markdown(section_header("📋 Kết Quả Phân Tích"), unsafe_allow_html=True)
+    st.markdown(section_header("Kết Quả Phân Tích", "assessment"), unsafe_allow_html=True)
     
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -140,7 +140,7 @@ def render_correlation_page():
         st.markdown(metric_card(method.capitalize(), "Phương pháp dùng", "teal"), unsafe_allow_html=True)
 
     # ── Correlation Matrix ──
-    st.markdown(section_header("📸 Ma Trận Tương Quan (Heatmap)"), unsafe_allow_html=True)
+    st.markdown(section_header("Ma Trận Tương Quan (Heatmap)", "grid_on"), unsafe_allow_html=True)
     
     corr_dict = data.get("correlation_matrix", {})
     p_dict = data.get("p_value_matrix", {})
@@ -151,9 +151,9 @@ def render_correlation_page():
             cmap="RdYlGn", vmin=-1, vmax=1
         ).format("{:.3f}")
         st.dataframe(styled, use_container_width=True)
-        st.caption("🟢 Màu xanh: Tương quan thuận | 🔴 Màu đỏ: Tương quan nghịch | ⚪ Màu trắng: Không tương quan.")
+        st.caption("Màu xanh: Tương quan thuận | Màu đỏ: Tương quan nghịch | Màu trắng: Không tương quan.")
 
-    with st.expander("🔎 Xem ma trận Chi tiết (p-value)", expanded=False):
+    with st.expander("Xem ma trận chi tiết (p-value)", expanded=False, icon=":material/grid_view:"):
         st.markdown("**Bảng giá trị p-value:** (Càng nhỏ càng có ý nghĩa)")
         p_df = pd.DataFrame(p_dict)
         styled_p = p_df.style.background_gradient(
@@ -163,7 +163,7 @@ def render_correlation_page():
 
     # ── Significant Pairs Table ──
     if sig_pairs:
-        st.markdown(section_header(f"💡 Phát hiện {len(sig_pairs)} mối liên hệ có ý nghĩa"), unsafe_allow_html=True)
+        st.markdown(section_header(f"Phát hiện {len(sig_pairs)} mối liên hệ có ý nghĩa", "lightbulb"), unsafe_allow_html=True)
         
         st.info("Bảng dưới đây liệt kê các cặp biến có mối liên hệ thực sự (p < 0.05).")
 
@@ -194,21 +194,21 @@ def render_correlation_page():
         # Summary findings tooltip
         strong_pairs = sig_df[sig_df["Mức độ"] == "strong"]
         if not strong_pairs.empty:
-            with st.expander("✨ Phát hiện quan trọng (Tương quan mạnh)", expanded=True):
+            with st.expander("Phát hiện quan trọng (Tương quan mạnh)", expanded=True, icon=":material/insights:"):
                 for _, row in strong_pairs.head(3).iterrows():
                     st.success(f"• **{row['Biến 1']}** và **{row['Biến 2']}** có mối liên hệ rất chặt chẽ (r = {row['Hệ số r']:.3f}).")
     else:
-        st.warning("⚠️ Không tìm thấy cặp biến nào có mối liên hệ có ý nghĩa thống kê (p < 0.05).")
+        st.warning("Không tìm thấy cặp biến nào có mối liên hệ có ý nghĩa thống kê (p < 0.05).")
 
     st.markdown("---")
     render_result_downloads(result, "correlation_report", "corr_export")
 
-    if st.button("🤖 Phân tích chuyên sâu bằng AI", key="ai_corr_btn"):
+    if st.button("Phân tích chuyên sâu bằng AI", key="ai_corr_btn", icon=":material/auto_awesome:"):
         with st.spinner("AI đang giải thích và chẩn đoán nguyên nhân..."):
             from services.analysis_manager import AnalysisManager
             am = AnalysisManager(st.session_state["survey_data"])
             ai_explanation = am.explain_single_with_ai(result)
-            st.info(f"**AI Insight:**\n\n{ai_explanation}")
+            st.info(f"**AI Insight:**\n\n{modernize_icons(ai_explanation)}")
 
 
 def _ensure_numeric(survey_data, columns):

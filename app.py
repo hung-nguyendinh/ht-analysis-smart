@@ -26,7 +26,7 @@ from ui.pages.efa_page import render_efa_page
 # ── Page Config ─────────────────────────────────────────
 st.set_page_config(
     page_title="HT Analysis Smart",
-    page_icon="📊",
+    page_icon=str(project_root / "assets" / "favicon.svg"),
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -72,63 +72,64 @@ with st.sidebar:
     )
 
     # Session info
-    st.markdown(
-        '<div class="sidebar-section-label data-label">Trạng thái dữ liệu</div>',
-        unsafe_allow_html=True,
-    )
-    if "survey_data" in st.session_state:
-        sd = st.session_state["survey_data"]
-        safe_filename = escape(str(sd.filename))
-        likert_n = len(sd.get_likert_columns())
-        demo_n = len(sd.get_demographic_columns())
+    with st.container(key="sidebar_status"):
         st.markdown(
-            f"""
-            <div class="dataset-card">
-                <div class="dataset-topline">
-                    <span class="status-dot"></span>
-                    <span>Sẵn sàng phân tích</span>
-                </div>
-                <div class="dataset-name">{safe_filename}</div>
-                <div class="dataset-stats">
-                    <span><strong>{sd.df.shape[0]}</strong> dòng</span>
-                    <span><strong>{sd.df.shape[1]}</strong> cột</span>
-                </div>
-                <div class="dataset-tags">
-                    <span>{likert_n} Likert</span>
-                    <span>{demo_n} nhân khẩu học</span>
-                </div>
-            </div>
-            """,
+            '<div class="sidebar-section-label data-label">Trạng thái dữ liệu</div>',
             unsafe_allow_html=True,
         )
+        if "survey_data" in st.session_state:
+            sd = st.session_state["survey_data"]
+            safe_filename = escape(str(sd.filename))
+            likert_n = len(sd.get_likert_columns())
+            demo_n = len(sd.get_demographic_columns())
+            st.markdown(
+                f"""
+                <div class="dataset-card">
+                    <div class="dataset-topline">
+                        <span class="status-dot"></span>
+                        <span>Sẵn sàng phân tích</span>
+                    </div>
+                    <div class="dataset-name" title="{safe_filename}">{safe_filename}</div>
+                    <div class="dataset-stats">
+                        <span><strong>{sd.df.shape[0]}</strong> dòng</span>
+                        <span><strong>{sd.df.shape[1]}</strong> cột</span>
+                    </div>
+                    <div class="dataset-tags">
+                        <span>{likert_n} Likert</span>
+                        <span>{demo_n} nhân khẩu học</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-        if st.button("Xóa dữ liệu", use_container_width=True):
-            for key in ["survey_data", "uploaded_filename", "uploaded_size"]:
-                st.session_state.pop(key, None)
-            st.rerun()
-    else:
+            if st.button("Xóa dữ liệu", use_container_width=True, icon=":material/delete:"):
+                for key in ["survey_data", "uploaded_filename", "uploaded_size"]:
+                    st.session_state.pop(key, None)
+                st.rerun()
+        else:
+            st.markdown(
+                """
+                <div class="dataset-card dataset-empty">
+                    <div class="empty-visual">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="dataset-name">Chưa có dữ liệu</div>
+                    <div class="dataset-hint">Tải lên tệp khảo sát để bắt đầu khám phá.</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
         st.markdown(
             """
-            <div class="dataset-card dataset-empty">
-                <div class="empty-visual">
-                    <span></span><span></span><span></span>
-                </div>
-                <div class="dataset-name">Chưa có dữ liệu</div>
-                <div class="dataset-hint">Tải lên tệp khảo sát để bắt đầu khám phá.</div>
+            <div class="sidebar-footer">
+                <span>HT Lab</span>
+                <span class="version-chip">v1.0</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
-
-    st.markdown(
-        """
-        <div class="sidebar-footer">
-            <span>HT Lab</span>
-            <span class="version-chip">v1.0</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 # ── Main Content ────────────────────────────────────────

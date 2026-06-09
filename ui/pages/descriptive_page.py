@@ -5,7 +5,7 @@ Includes user-friendly explanations and help text.
 import streamlit as st
 import pandas as pd
 
-from ui.styles import metric_card, section_header
+from ui.styles import metric_card, modernize_icons, section_header
 from ui.analysis_helpers import get_numeric_column_names, render_column_picker
 from ui.export_helpers import render_result_downloads
 from services.descriptive_stats import compute_descriptive, compute_frequency_table
@@ -13,10 +13,10 @@ from services.descriptive_stats import compute_descriptive, compute_frequency_ta
 
 def render_descriptive_page():
     """Render the Descriptive Statistics page."""
-    st.markdown("## 📈 Thống Kê Mô Tả")
+    st.markdown("## :material/monitoring: Thống Kê Mô Tả")
 
     if "survey_data" not in st.session_state:
-        st.info("📤 Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
+        st.info("Chưa có dữ liệu. Vui lòng upload file ở trang **Upload**.")
         return
 
     survey_data = st.session_state["survey_data"]
@@ -26,11 +26,14 @@ def render_descriptive_page():
     numeric_cols = get_numeric_column_names(df)
 
     if not all_cols:
-        st.warning("⚠️ Không có cột nào trong dữ liệu.")
+        st.warning("Không có cột nào trong dữ liệu.")
         return
 
     # ── Tabs ──────────────────────────────────────────────
-    tab_desc, tab_freq = st.tabs(["📊 Thống kê mô tả", "📋 Bảng tần số"])
+    tab_desc, tab_freq = st.tabs([
+        ":material/monitoring: Thống kê mô tả",
+        ":material/table_view: Bảng tần số",
+    ])
 
     with tab_desc:
         _render_descriptive_tab(survey_data, df, all_cols, numeric_cols)
@@ -41,7 +44,7 @@ def render_descriptive_page():
 
 def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
     """Render descriptive statistics table."""
-    st.markdown(section_header("Chuẩn bị phân tích"), unsafe_allow_html=True)
+    st.markdown(section_header("Chuẩn bị phân tích", "tune"), unsafe_allow_html=True)
 
     default_cols = numeric_cols if numeric_cols else all_cols[:min(5, len(all_cols))]
 
@@ -58,11 +61,11 @@ def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
     )
 
     if not selected_cols:
-        st.info("⬆️ Chọn ít nhất **1 cột** để bắt đầu phân tích.")
+        st.info("Chọn ít nhất **1 cột** để bắt đầu phân tích.")
         return
 
     # --- Explanations Expander ---
-    with st.expander("❓ Giải thích các chỉ số (Click để xem)", expanded=False):
+    with st.expander("Giải thích các chỉ số", expanded=False, icon=":material/help:"):
         st.markdown("""
 | Chỉ số | Ý nghĩa dễ hiểu |
 | :--- | :--- |
@@ -90,16 +93,16 @@ def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
                 skipped_cols.append(c)
 
     if skipped_cols:
-        st.warning(f"⚠️ Bỏ qua cột không chuyển được sang số: {', '.join(skipped_cols)}")
+        st.warning(f"Bỏ qua cột không chuyển được sang số: {', '.join(skipped_cols)}")
 
     if not valid_cols:
-        st.error("❌ Không có cột số nào hợp lệ. Vui lòng chọn lại.")
+        st.error("Không có cột số nào hợp lệ. Vui lòng chọn lại.")
         return
 
     # Convert selected columns to numeric in a temp df for analysis
     _ensure_numeric(survey_data, valid_cols)
 
-    if st.button("🔍 Chạy phân tích", type="primary", use_container_width=True, key="desc_run"):
+    if st.button("Chạy phân tích", type="primary", use_container_width=True, key="desc_run", icon=":material/play_arrow:"):
         with st.spinner("Đang tính toán..."):
             result = compute_descriptive(survey_data, columns=valid_cols)
         st.session_state["desc_result"] = result
@@ -109,7 +112,7 @@ def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
         return
 
     # Summary
-    st.markdown(section_header("Kết quả"), unsafe_allow_html=True)
+    st.markdown(section_header("Kết quả", "assessment"), unsafe_allow_html=True)
     st.success(result.summary_text)
 
     table_records = result.data.get("descriptive_table", [])
@@ -130,7 +133,7 @@ def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
         with c4:
             st.markdown(metric_card(f"{df_result['Std'].mean():.3f}", "Avg Std (Biến thiên TB)", "orange"), unsafe_allow_html=True)
 
-    st.markdown(section_header("Bảng thống kê chi tiết"), unsafe_allow_html=True)
+    st.markdown(section_header("Bảng thống kê chi tiết", "table_view"), unsafe_allow_html=True)
     st.dataframe(df_result, use_container_width=True, hide_index=True)
     render_result_downloads(result, "descriptive_report", "desc_export")
 
@@ -142,7 +145,7 @@ def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
     if "Skewness" in df_result.columns:
         skewed = df_result[df_result["Skewness"].abs() > 1]["Column"].tolist()
         if skewed:
-            with st.expander(f"💡 Lưu ý về độ lệch ({len(skewed)} cột)", expanded=True):
+            with st.expander(f"Lưu ý về độ lệch ({len(skewed)} cột)", expanded=True, icon=":material/lightbulb:"):
                 st.info("Các cột sau có độ lệch cao (|Skewness| > 1). Điều này có nghĩa là câu trả lời tập trung nhiều về một phía (quá cao hoặc quá thấp).")
                 for c in skewed:
                     val = df_result[df_result["Column"] == c]["Skewness"].values[0]
@@ -150,17 +153,17 @@ def _render_descriptive_tab(survey_data, df, all_cols, numeric_cols):
                     st.write(f"• **{c}**: Lệch {direction} (Skew = {val})")
 
     st.markdown("---")
-    if st.button("🤖 Phân tích chuyên sâu bằng AI", key="ai_desc_btn"):
+    if st.button("Phân tích chuyên sâu bằng AI", key="ai_desc_btn", icon=":material/auto_awesome:"):
         with st.spinner("AI đang giải thích và chẩn đoán nguyên nhân..."):
             from services.analysis_manager import AnalysisManager
             am = AnalysisManager(st.session_state["survey_data"])
             ai_explanation = am.explain_single_with_ai(result)
-            st.info(f"**AI Insight:**\n\n{ai_explanation}")
+            st.info(f"**AI Insight:**\n\n{modernize_icons(ai_explanation)}")
 
 
 def _render_frequency_tab(survey_data, all_cols):
     """Render frequency table for a single column."""
-    st.markdown(section_header("Bảng tần số cho một cột"), unsafe_allow_html=True)
+    st.markdown(section_header("Bảng tần số cho một cột", "table_view"), unsafe_allow_html=True)
 
     col = st.selectbox(
         "Chọn cột để xem tần suất:",
@@ -169,7 +172,7 @@ def _render_frequency_tab(survey_data, all_cols):
         help="Thường dùng cho các biến định danh (vd: Giới tính, Tỉnh thành) để xem số lượng và tỷ lệ %."
     )
 
-    if st.button("📋 Tạo bảng tần số", type="primary", use_container_width=True, key="freq_run"):
+    if st.button("Tạo bảng tần số", type="primary", use_container_width=True, key="freq_run", icon=":material/table_view:"):
         with st.spinner("Đang tính..."):
             result = compute_frequency_table(survey_data, column=col)
 
