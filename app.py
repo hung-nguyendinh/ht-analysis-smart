@@ -3,6 +3,7 @@ HT Analysis Smart — Streamlit Application
 Main entry point for the survey data analysis UI.
 """
 import sys
+from html import escape
 from pathlib import Path
 
 # Add project root to sys.path
@@ -36,9 +37,20 @@ st.markdown(get_custom_css(), unsafe_allow_html=True)
 
 # ── Sidebar ─────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("# 📊 HT Analysis")
-    st.markdown("**Smart Survey Analyzer**")
-    st.markdown("---")
+    st.markdown(
+        """
+        <div class="sidebar-brand">
+            <div class="brand-mark"><span>HT</span></div>
+            <div class="brand-copy">
+                <div class="brand-eyebrow">RESEARCH WORKSPACE</div>
+                <div class="brand-title">HT Analysis</div>
+                <div class="brand-subtitle">Smart Survey Analyzer</div>
+            </div>
+        </div>
+        <div class="sidebar-section-label">Không gian phân tích</div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # Navigation
     page = st.radio(
@@ -57,27 +69,64 @@ with st.sidebar:
         key="nav_radio",
     )
 
-    st.markdown("---")
-
     # Session info
+    st.markdown(
+        '<div class="sidebar-section-label data-label">Trạng thái dữ liệu</div>',
+        unsafe_allow_html=True,
+    )
     if "survey_data" in st.session_state:
         sd = st.session_state["survey_data"]
-        st.markdown(f"📄 **{sd.filename}**")
-        st.markdown(f"📏 {sd.df.shape[0]} rows × {sd.df.shape[1]} cols")
-
+        safe_filename = escape(str(sd.filename))
         likert_n = len(sd.get_likert_columns())
         demo_n = len(sd.get_demographic_columns())
-        st.markdown(f"📊 {likert_n} Likert · 👤 {demo_n} Demo")
+        st.markdown(
+            f"""
+            <div class="dataset-card">
+                <div class="dataset-topline">
+                    <span class="status-dot"></span>
+                    <span>Sẵn sàng phân tích</span>
+                </div>
+                <div class="dataset-name">{safe_filename}</div>
+                <div class="dataset-stats">
+                    <span><strong>{sd.df.shape[0]}</strong> dòng</span>
+                    <span><strong>{sd.df.shape[1]}</strong> cột</span>
+                </div>
+                <div class="dataset-tags">
+                    <span>{likert_n} Likert</span>
+                    <span>{demo_n} nhân khẩu học</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         if st.button("🗑️ Xóa dữ liệu", use_container_width=True):
             for key in ["survey_data", "uploaded_filename", "uploaded_size"]:
                 st.session_state.pop(key, None)
             st.rerun()
     else:
-        st.markdown("_Chưa có dữ liệu._")
+        st.markdown(
+            """
+            <div class="dataset-card dataset-empty">
+                <div class="empty-visual">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="dataset-name">Chưa có dữ liệu</div>
+                <div class="dataset-hint">Tải lên tệp khảo sát để bắt đầu khám phá.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    st.markdown("---")
-    st.caption("v1.0")
+    st.markdown(
+        """
+        <div class="sidebar-footer">
+            <span>HT Lab</span>
+            <span class="version-chip">v1.0</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ── Main Content ────────────────────────────────────────
