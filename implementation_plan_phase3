@@ -1,0 +1,98 @@
+# Phase 3: Suggestion + Explanation Engine
+
+Xây dựng hệ thống gợi ý xử lý dữ liệu thông minh và giải thích kết quả phân tích bằng ngôn ngữ tự nhiên. Ba module chính: Data Quality Report, Smart Suggestions, Result Explainer.
+
+## Proposed Changes
+
+### Services Layer
+
+#### [NEW] [data_quality_report.py](file:///d:/Projects/HT_Analysis_Smart/services/data_quality_report.py)
+Tạo báo cáo chất lượng dữ liệu toàn diện:
+- `generate_quality_report(survey_data)` → tổng hợp toàn bộ data quality:
+  - **Overview**: tổng số respondents, cột, tỉ lệ missing tổng thể, encoding info
+  - **Column quality scores**: mỗi cột nhận điểm 0-100 (dựa trên missing%, variance, outliers)
+  - **Dataset quality score**: điểm tổng 0-100 cho toàn bộ dataset
+  - **Missing data heatmap data**: ma trận missing pattern (row × col) để UI hiển thị
+  - **Response pattern analysis**: phát hiện straight-lining (respondent trả lời giống nhau trên mọi item)
+  - **Scale consistency check**: kiểm tra các items Likert cùng scale có consistent không
+- Return [AnalysisResult](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py#115-134) với type mới `QUALITY_REPORT`
+
+#### [MODIFY] [suggestion.py](file:///d:/Projects/HT_Analysis_Smart/services/suggestion.py)
+Rewrite hoàn chỉnh — hệ thống gợi ý thông minh:
+- [generate_suggestions(survey_data)](file:///d:/Projects/HT_Analysis_Smart/services/suggestion.py#6-27) → phân tích và gợi ý:
+  - **Data cleaning suggestions**: cột nào nên drop, impute, hoặc keep
+  - **Analysis suggestions**: dựa trên data structure, gợi ý nên chạy test nào
+    - Có Likert items → "Nên chạy Cronbach's Alpha để kiểm tra độ tin cậy"
+    - Có demographic + Likert → "Nên so sánh nhóm (T-test/ANOVA) theo biến nhân khẩu"
+    - Nhiều Likert items → "Nên xem xét Correlation matrix"
+    - Có biến phụ thuộc rõ ràng → "Nên thử Regression analysis"
+  - **Post-analysis suggestions**: sau khi đã chạy Phase 2
+    - Alpha thấp → gợi ý bỏ item nào
+    - Correlation mạnh → gợi ý regression
+    - T-test not significant → gợi ý tăng sample size
+- Mỗi suggestion có: `priority` (high/medium/low), `category`, `action`, `reason`
+
+#### [NEW] [explainer.py](file:///d:/Projects/HT_Analysis_Smart/services/explainer.py)
+Giải thích kết quả phân tích bằng ngôn ngữ dễ hiểu (Vietnamese):
+- `explain_result(analysis_result, lang="vi")` → dispatch theo [AnalysisType](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py#105-113):
+  - `_explain_descriptive()`: "Giá trị trung bình của [cột] là X.XX trên thang Y điểm, cho thấy mức đánh giá [tích cực/trung bình/tiêu cực]"
+  - `_explain_reliability()`: "Cronbach's Alpha = 0.85 → Thang đo có độ tin cậy tốt. Item [X] có tương quan thấp, cân nhắc loại bỏ"
+  - `_explain_correlation()`: "Có X cặp biến có tương quan có ý nghĩa. Mạnh nhất: [A] và [B] (r=0.72, p<0.01)"
+  - `_explain_comparison()`: "Có sự khác biệt có ý nghĩa thống kê giữa nhóm A (M=3.5) và nhóm B (M=4.2), p=0.01, Cohen's d=0.8 (mức ảnh hưởng lớn)"
+  - `_explain_regression()`: "Mô hình giải thích X% phương sai. Biến [A] có ảnh hưởng mạnh nhất (β=0.45, p<0.01)"
+  - `_explain_quality_report()`: tóm tắt chất lượng data
+- `explain_all(survey_data, lang="vi")` → giải thích tất cả results trong `survey_data.analysis_results`
+
+---
+
+### Models Layer
+
+#### [MODIFY] [data_schema.py](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py)
+- Thêm `QUALITY_REPORT` vào [AnalysisType](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py#105-113) enum
+- Thêm `SUGGESTION` vào [AnalysisType](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py#105-113) enum
+
+---
+
+### Config & Project Updates
+
+#### [MODIFY] [main.py](file:///d:/Projects/HT_Analysis_Smart/main.py)
+- Thêm import check cho Phase 3 modules
+
+#### [MODIFY] [analysis_manager.py](file:///d:/Projects/HT_Analysis_Smart/services/analysis_manager.py)
+- Thêm `run_quality_report()`, `run_suggestions()`, `run_explanations()` methods
+- Update [run_all_basic()](file:///d:/Projects/HT_Analysis_Smart/services/analysis_manager.py#114-157) để include quality report + suggestions
+
+---
+
+### Tests
+
+#### [NEW] [test_quality_report.py](file:///d:/Projects/HT_Analysis_Smart/tests/test_quality_report.py)
+- Test quality score calculation
+- Test missing pattern detection
+- Test straight-lining detection
+- Test edge cases: empty dataset, perfect dataset
+
+#### [NEW] [test_suggestion.py](file:///d:/Projects/HT_Analysis_Smart/tests/test_suggestion.py)
+- Test cleaning suggestions (high missing → recommend drop)
+- Test analysis suggestions based on column types
+- Test post-analysis suggestions (low alpha, high correlation)
+- Test suggestion priority ordering
+
+#### [NEW] [test_explainer.py](file:///d:/Projects/HT_Analysis_Smart/tests/test_explainer.py)
+- Test explain per analysis type (descriptive, reliability, correlation, comparison, regression)
+- Test Vietnamese language output
+- Test with edge case results (empty data, warnings)
+
+## Verification Plan
+
+### Automated Tests
+```bash
+cd d:\Projects\HT_Analysis_Smart
+python -m pytest tests/ -v
+```
+
+### Manual Verification
+```bash
+cd d:\Projects\HT_Analysis_Smart
+python -c "from services.data_quality_report import generate_quality_report; from services.suggestion import generate_suggestions; from services.explainer import explain_result, explain_all; print('All Phase 3 imports OK')"
+```

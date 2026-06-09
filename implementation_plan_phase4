@@ -1,0 +1,57 @@
+# Phase 4: Streamlit UI — Upload + Preview
+
+Tạo giao diện Streamlit cho pipeline phân tích khảo sát. Phase 4 tập trung vào 2 tính năng chính: Upload file và Show preview.
+
+## Proposed Changes
+
+### UI Layer
+
+#### [NEW] [app.py](file:///d:/Projects/HT_Analysis_Smart/app.py)
+Entry point chính cho Streamlit. Cấu hình page, sidebar navigation, session state management.
+- Sidebar: navigation giữa các trang (Upload, Preview, Analysis, Results)
+- Session state: lưu [SurveyData](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py#138-227) xuyên suốt workflow
+- Page config: title, icon, layout wide
+
+#### [NEW] [ui/pages/upload_page.py](file:///d:/Projects/HT_Analysis_Smart/ui/pages/upload_page.py)
+Trang Upload file:
+- `st.file_uploader` cho CSV, XLSX, XLS
+- Show file info (tên, size, type) sau khi upload
+- Auto-run: load → validate → preprocess → quality report
+- Hiển thị processing log realtime (progress bar + status messages)
+- Show kết quả tổng quan sau khi load xong (shape, encoding, column types, quality score)
+
+#### [NEW] [ui/pages/preview_page.py](file:///d:/Projects/HT_Analysis_Smart/ui/pages/preview_page.py)
+Trang Preview dữ liệu:
+- **Data table**: `st.dataframe` với full dataset (paginated), search/filter
+- **Column info table**: type detected, missing%, scale info
+- **Quality report summary**: dataset score, grade, warnings
+- **Missing data overview**: bar chart tỉ lệ missing theo cột
+- **Data type distribution**: pie chart phân bổ column types
+
+#### [NEW] [ui/data_loader_ui.py](file:///d:/Projects/HT_Analysis_Smart/ui/data_loader_ui.py)
+Helper để load `UploadedFile` thành [SurveyData](file:///d:/Projects/HT_Analysis_Smart/models/data_schema.py#138-227):
+- `load_uploaded_file(uploaded_file)` → save to temp → call [load_file()](file:///d:/Projects/HT_Analysis_Smart/services/data_loader.py#16-111) → cleanup
+- Handles encoding, format detection giống [data_loader.py](file:///d:/Projects/HT_Analysis_Smart/services/data_loader.py)
+
+#### [NEW] [ui/styles.py](file:///d:/Projects/HT_Analysis_Smart/ui/styles.py)
+Custom CSS cho Streamlit:
+- Color scheme (dark/light), typography
+- Card components, metric cards
+- Quality score badge styling
+
+---
+
+### Project Updates
+
+#### [MODIFY] [main.py](file:///d:/Projects/HT_Analysis_Smart/main.py)
+- Thêm Phase 4 import check
+
+## Verification Plan
+
+### Manual Verification
+```bash
+cd d:\Projects\HT_Analysis_Smart
+streamlit run app.py
+```
+- Upload file CSV/XLSX → verify loading and preview
+- Check responsive layout, styling

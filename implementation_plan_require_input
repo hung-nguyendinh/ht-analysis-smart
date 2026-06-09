@@ -1,0 +1,29 @@
+# Hỗ trợ lựa chọn Sheet khi upload file Excel
+
+Hiện tại, ứng dụng chỉ mặc định đọc sheet đầu tiên của file Excel. Kế hoạch này sẽ bổ sung tính năng tự động nhận diện các sheet và cho phép người dùng lựa chọn sheet muốn phân tích.
+
+## Proposed Changes
+
+### [Backend] [services/data_loader.py](file:///d:/Projects/HT_Analysis_Smart/services/data_loader.py)
+- Cập nhật hàm [load_file](file:///d:/Projects/HT_Analysis_Smart/services/data_loader.py#16-111) để nhận thêm tham số `sheet_name`.
+- Bổ sung hàm `get_excel_sheets(file_path)` để lấy danh sách tên các sheet mà không cần load toàn bộ dữ liệu.
+
+### [UI] [ui/data_loader_ui.py](file:///d:/Projects/HT_Analysis_Smart/ui/data_loader_ui.py)
+- Cập nhật [load_uploaded_file](file:///d:/Projects/HT_Analysis_Smart/ui/data_loader_ui.py#17-49) để truyền `sheet_name` vào [load_file](file:///d:/Projects/HT_Analysis_Smart/services/data_loader.py#16-111).
+- Cập nhật [process_uploaded_file](file:///d:/Projects/HT_Analysis_Smart/ui/data_loader_ui.py#51-75) để nhận `sheet_name`.
+
+### [UI] [ui/pages/upload_page.py](file:///d:/Projects/HT_Analysis_Smart/ui/pages/upload_page.py)
+- Khi người dùng upload file Excel, hệ thống sẽ kiểm tra số lượng sheet.
+- Nếu có nhiều hơn 1 sheet, hiển thị một `st.selectbox` để người dùng chọn sheet.
+- Sau khi chọn sheet, người dùng mới nhấn nút "🚀 Bắt đầu xử lý".
+
+## Verification Plan
+
+### Automated Tests
+- Chạy `pytest` hiện tại để đảm bảo không có regression.
+- Tạo test case mới với file Excel có nhiều sheet.
+
+### Manual Verification
+- Upload file Excel có 1 sheet: Kiểm tra giao diện không đổi.
+- Upload file Excel có nhiều sheet: Kiểm tra giao diện xuất hiện selectbox chọn sheet.
+- Chọn sheet khác nhau và kiểm tra dữ liệu load lên chính xác.
