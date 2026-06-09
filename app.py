@@ -40,7 +40,9 @@ with st.sidebar:
     st.markdown(
         """
         <div class="sidebar-brand">
-            <div class="brand-mark"><span>HT</span></div>
+            <div class="brand-mark">
+                <span class="material-symbols-rounded">query_stats</span>
+            </div>
             <div class="brand-copy">
                 <div class="brand-eyebrow">RESEARCH WORKSPACE</div>
                 <div class="brand-title">HT Analysis</div>
@@ -56,14 +58,14 @@ with st.sidebar:
     page = st.radio(
         "Navigation",
         [
-            "📤 Upload",
-            "📊 Preview",
-            "📈 Descriptive",
-            "🔬 Reliability",
-            "🧩 EFA",
-            "🔗 Correlation",
-            "📉 Regression",
-            "🧪 T-test / ANOVA",
+            "Upload",
+            "Preview",
+            "Descriptive",
+            "Reliability",
+            "EFA",
+            "Correlation",
+            "Regression",
+            "T-test / ANOVA",
         ],
         label_visibility="collapsed",
         key="nav_radio",
@@ -100,7 +102,7 @@ with st.sidebar:
             unsafe_allow_html=True,
         )
 
-        if st.button("🗑️ Xóa dữ liệu", use_container_width=True):
+        if st.button("Xóa dữ liệu", use_container_width=True):
             for key in ["survey_data", "uploaded_filename", "uploaded_size"]:
                 st.session_state.pop(key, None)
             st.rerun()
@@ -130,19 +132,19 @@ with st.sidebar:
 
 
 # ── Main Content ────────────────────────────────────────
-if page == "📤 Upload":
+if page == "Upload":
     render_upload_page()
-elif page == "📊 Preview":
+elif page == "Preview":
     render_preview_page()
-elif page == "📈 Descriptive":
+elif page == "Descriptive":
     render_descriptive_page()
-elif page == "🔬 Reliability":
+elif page == "Reliability":
     render_reliability_page()
-elif page == "🧩 EFA":
+elif page == "EFA":
     render_efa_page()
-elif page == "🔗 Correlation":
+elif page == "Correlation":
     render_correlation_page()
-elif page == "📉 Regression":
+elif page == "Regression":
     render_regression_page()
-elif page == "🧪 T-test / ANOVA":
+elif page == "T-test / ANOVA":
     render_comparison_page()

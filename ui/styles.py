@@ -8,10 +8,25 @@ def get_custom_css() -> str:
     return """
     <style>
     /* ── Google Font ────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
     @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Quicksand', sans-serif !important;
+    }
+    .material-symbols-rounded {
+        font-family: 'Material Symbols Rounded' !important;
+        font-style: normal;
+        font-weight: 400;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
     }
 
     /* ── Main container ───────────────────────────────── */
@@ -110,6 +125,11 @@ def get_custom_css() -> str:
 
     /* ── Sidebar ──────────────────────────────────────── */
     [data-testid="stSidebar"] {
+        height: 100vh;
+        height: 100dvh;
+        max-height: 100vh;
+        max-height: 100dvh;
+        overflow: hidden;
         background:
             radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.92) 0 7%, transparent 28%),
             radial-gradient(circle at 95% 22%, rgba(255, 255, 255, 0.58) 0 4%, transparent 22%),
@@ -119,12 +139,26 @@ def get_custom_css() -> str:
     }
     [data-testid="stSidebar"] > div:first-child {
         width: 19rem;
+        height: 100%;
+        max-height: 100%;
+        overflow: hidden;
     }
     [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-        padding: 1.3rem 1rem 1rem;
+        box-sizing: border-box;
+        height: 100%;
+        max-height: 100%;
+        margin-top: -2.5rem;
+        padding: clamp(0.45rem, 1vh, 0.7rem) 0.9rem 0.75rem;
+        overflow: hidden;
+        overscroll-behavior: none;
     }
     [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
-        gap: 0.45rem;
+        box-sizing: border-box;
+        height: 100%;
+        min-height: 0;
+        max-height: 100%;
+        gap: clamp(0.18rem, 0.45vh, 0.34rem);
+        overflow: hidden;
     }
     [data-testid="stSidebar"] hr {
         display: none;
@@ -135,14 +169,15 @@ def get_custom_css() -> str:
         position: relative;
         display: flex;
         align-items: center;
-        gap: 0.85rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
+        gap: 0.82rem;
+        margin-right: 2.4rem;
+        margin-bottom: clamp(0.65rem, 1.5vh, 1rem);
+        padding: clamp(0.72rem, 1.5vh, 0.95rem) 0.9rem;
         overflow: hidden;
         background: rgba(255, 255, 255, 0.66);
         border: 1px solid rgba(255, 255, 255, 0.92);
-        border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(177, 68, 109, 0.10);
+        border-radius: 19px;
+        box-shadow: 0 10px 26px rgba(177, 68, 109, 0.10);
         backdrop-filter: blur(12px);
     }
     .sidebar-brand::after {
@@ -159,21 +194,21 @@ def get_custom_css() -> str:
     .brand-mark {
         position: relative;
         display: grid;
-        flex: 0 0 3rem;
-        width: 3rem;
-        height: 3rem;
+        flex: 0 0 2.9rem;
+        width: 2.9rem;
+        height: 2.9rem;
         place-items: center;
         color: #ffffff;
         background: linear-gradient(145deg, #ed6d9f, #c9487c);
-        border-radius: 15px;
+        border-radius: 14px;
         box-shadow: 0 9px 18px rgba(201, 72, 124, 0.25);
     }
     .brand-mark::before,
     .brand-mark::after {
         content: "";
         position: absolute;
-        width: 3.7rem;
-        height: 1.45rem;
+        width: 3.55rem;
+        height: 1.4rem;
         border: 1px solid rgba(201, 72, 124, 0.38);
         border-radius: 50%;
         transform: rotate(35deg);
@@ -181,12 +216,11 @@ def get_custom_css() -> str:
     .brand-mark::after {
         transform: rotate(-35deg);
     }
-    .brand-mark span {
+    .brand-mark .material-symbols-rounded {
         position: relative;
         z-index: 1;
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
+        font-size: 1.55rem;
+        font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 28;
     }
     .brand-copy {
         position: relative;
@@ -202,7 +236,7 @@ def get_custom_css() -> str:
     }
     .brand-title {
         color: #61283f;
-        font-size: 1.05rem;
+        font-size: 1.04rem;
         font-weight: 700;
         line-height: 1.15;
     }
@@ -213,7 +247,7 @@ def get_custom_css() -> str:
         font-weight: 600;
     }
     .sidebar-section-label {
-        margin: 0.25rem 0 0.55rem 0.75rem;
+        margin: 0.15rem 0 clamp(0.3rem, 0.7vh, 0.48rem) 0.7rem;
         color: #a66c82;
         font-size: 0.63rem;
         font-weight: 700;
@@ -221,17 +255,17 @@ def get_custom_css() -> str:
         text-transform: uppercase;
     }
     .sidebar-section-label.data-label {
-        margin-top: 1.35rem;
+        margin-top: clamp(0.65rem, 1.4vh, 1rem);
     }
 
     /* Sidebar navigation */
     [data-testid="stSidebar"] [role="radiogroup"] {
-        gap: 0.22rem;
+        gap: clamp(0.08rem, 0.32vh, 0.2rem);
     }
     [data-testid="stSidebar"] [role="radiogroup"] label {
         position: relative;
-        min-height: 2.7rem;
-        padding: 0.64rem 0.72rem;
+        min-height: clamp(2.35rem, 4.7vh, 2.75rem);
+        padding: clamp(0.43rem, 0.9vh, 0.62rem) 0.72rem;
         border: 1px solid transparent;
         border-radius: 13px;
         transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
@@ -252,17 +286,46 @@ def get_custom_css() -> str:
         font-weight: 700;
     }
     [data-testid="stSidebar"] [role="radiogroup"] label p {
+        display: flex;
+        align-items: center;
+        gap: 0.68rem;
         color: #704357 !important;
         font-size: 0.84rem;
         font-weight: 600;
     }
+    [data-testid="stSidebar"] [role="radiogroup"] label p::before {
+        display: inline-flex;
+        flex: 0 0 1.2rem;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Material Symbols Rounded';
+        font-size: 1.18rem;
+        font-style: normal;
+        font-weight: normal;
+        font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(1) p::before { content: "upload_file"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(2) p::before { content: "dataset"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(3) p::before { content: "monitoring"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(4) p::before { content: "verified"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(5) p::before { content: "hub"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(6) p::before { content: "scatter_plot"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(7) p::before { content: "trending_up"; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(8) p::before { content: "experiment"; }
     [data-testid="stSidebar"] [role="radiogroup"] label > div:first-child {
         display: none;
     }
 
     /* Dataset status */
     .dataset-card {
-        padding: 0.9rem;
+        padding: clamp(0.7rem, 1.35vh, 0.88rem);
         background: rgba(255, 255, 255, 0.62);
         border: 1px solid rgba(255, 255, 255, 0.9);
         border-radius: 16px;
@@ -272,7 +335,7 @@ def get_custom_css() -> str:
         display: flex;
         align-items: center;
         gap: 0.42rem;
-        margin-bottom: 0.55rem;
+        margin-bottom: clamp(0.35rem, 0.7vh, 0.5rem);
         color: #a25876;
         font-size: 0.64rem;
         font-weight: 700;
@@ -298,11 +361,11 @@ def get_custom_css() -> str:
     .dataset-stats {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.45rem;
-        margin-top: 0.7rem;
+        gap: 0.42rem;
+        margin-top: clamp(0.45rem, 0.9vh, 0.65rem);
     }
     .dataset-stats span {
-        padding: 0.48rem 0.35rem;
+        padding: clamp(0.35rem, 0.75vh, 0.46rem) 0.32rem;
         color: #9a6a7d;
         background: rgba(255, 240, 246, 0.8);
         border-radius: 10px;
@@ -318,7 +381,7 @@ def get_custom_css() -> str:
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
-        margin-top: 0.65rem;
+        margin-top: clamp(0.42rem, 0.8vh, 0.58rem);
     }
     .dataset-tags span,
     .version-chip {
@@ -331,14 +394,14 @@ def get_custom_css() -> str:
         font-weight: 700;
     }
     .dataset-empty {
-        padding: 1rem;
+        padding: clamp(0.75rem, 1.5vh, 0.95rem);
         text-align: center;
     }
     .empty-visual {
         display: flex;
         justify-content: center;
         gap: 0.25rem;
-        margin-bottom: 0.6rem;
+        margin-bottom: clamp(0.4rem, 0.8vh, 0.58rem);
     }
     .empty-visual span {
         width: 0.42rem;
@@ -359,7 +422,8 @@ def get_custom_css() -> str:
         line-height: 1.5;
     }
     [data-testid="stSidebar"] .stButton button {
-        margin-top: 0.45rem;
+        min-height: clamp(2.25rem, 4.5vh, 2.6rem);
+        margin-top: clamp(0.3rem, 0.7vh, 0.45rem);
         color: #a8486d;
         background: rgba(255, 255, 255, 0.62);
         border: 1px solid rgba(203, 77, 124, 0.15);
@@ -367,6 +431,27 @@ def get_custom_css() -> str:
         font-size: 0.72rem;
         font-weight: 700;
         box-shadow: none;
+    }
+    [data-testid="stSidebar"] .stButton button p {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.48rem;
+    }
+    [data-testid="stSidebar"] .stButton button p::before {
+        content: "delete";
+        font-family: 'Material Symbols Rounded';
+        font-size: 1.05rem;
+        font-style: normal;
+        font-weight: normal;
+        font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
     }
     [data-testid="stSidebar"] .stButton button:hover {
         color: #ffffff;
@@ -377,12 +462,78 @@ def get_custom_css() -> str:
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin: 1.2rem 0.15rem 0;
-        padding-top: 0.75rem;
+        margin: clamp(0.55rem, 1.2vh, 0.85rem) 0.15rem 0;
+        padding-top: clamp(0.45rem, 0.9vh, 0.65rem);
         color: #a77d8d;
         border-top: 1px solid rgba(190, 91, 129, 0.12);
         font-size: 0.62rem;
         font-weight: 700;
+    }
+    [data-testid="stSidebar"] .element-container:has(.sidebar-footer) {
+        margin-top: auto;
+    }
+
+    /* Preserve readability while fitting genuinely short viewports. */
+    @media (max-height: 680px) {
+        [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+            padding-top: 0.35rem;
+            padding-bottom: 0.4rem;
+        }
+        .sidebar-brand {
+            margin-bottom: 0.5rem;
+            padding: 0.62rem 0.75rem;
+        }
+        .brand-mark {
+            flex-basis: 2.55rem;
+            width: 2.55rem;
+            height: 2.55rem;
+        }
+        .brand-mark::before,
+        .brand-mark::after {
+            width: 3.15rem;
+            height: 1.2rem;
+        }
+        .brand-eyebrow {
+            display: none;
+        }
+        .sidebar-section-label {
+            margin-bottom: 0.22rem;
+            font-size: 0.6rem;
+        }
+        .sidebar-section-label.data-label {
+            margin-top: 0.48rem;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label {
+            min-height: 2.15rem;
+            padding: 0.34rem 0.65rem;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label p {
+            font-size: 0.8rem;
+        }
+        .dataset-card {
+            padding: 0.62rem 0.7rem;
+        }
+        .dataset-tags {
+            display: none;
+        }
+        .dataset-stats {
+            margin-top: 0.3rem;
+        }
+        .dataset-stats span {
+            padding: 0.3rem 0.28rem;
+        }
+        .dataset-hint {
+            margin-top: 0.25rem;
+            line-height: 1.4;
+        }
+        [data-testid="stSidebar"] .stButton button {
+            min-height: 2.1rem;
+            margin-top: 0.25rem;
+        }
+        .sidebar-footer {
+            margin-top: 0.42rem;
+            padding-top: 0.38rem;
+        }
     }
 
     /* ── Progress bar ─────────────────────────────────── */
